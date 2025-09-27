@@ -21,7 +21,7 @@ jobs:
         uses: azure/setup-kubectl@v4
 
       - name: Lint
-        run: helm lint .
+        run: helm lint problem1
 
       - name: Setup Minikube (action)
         uses: manusa/actions-setup-minikube@v2.4.0
@@ -30,6 +30,11 @@ jobs:
           kubectl-version: "stable"
           driver: docker
           start-args: "--ports=5000:5000"
+
+      - name: Helm install
+        working-directory: problem1
+        run: |
+          helm install docker-registry . -f values.yaml
 
       - name: Test self host registry
         run: |
