@@ -37,4 +37,5 @@ jobs:
 
       - name: Test self host registry
         run: |
+          sleep 30
           docker login localhost:5000 -u admin -p demo12345
