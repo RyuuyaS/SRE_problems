@@ -13,3 +13,7 @@ The chart optionally deploys a Redis instance for caching. Garbage collection is
 For further information, please check output of the pipeline
 
 ![image info](./imgs/swappy-20250927-231903.png)
+
+Also I tried to apply CI scan for helm chart configuration
+
+![image info](./imgs/swappy-20250927-234349.png)
