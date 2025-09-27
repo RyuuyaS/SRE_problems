@@ -10,4 +10,6 @@ The chart optionally deploys a Redis instance for caching. Garbage collection is
 
 - Disclaimer: I'm using AI to generate most of the template to reduce boilerplate.
 
-![image info](./imgs/swappy-20250927-164156.png)
+For further information, please check output of the pipeline
+
+![image info](./imgs/swappy-20250927-231903.png)
