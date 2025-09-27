@@ -1,0 +1,14 @@
+{{- if .Values.garbageCollection.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "docker-registry.fullname" . }}-gc
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "docker-registry.fullname" . }}-gc
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "docker-registry.fullname" . }}-gc
+    namespace: {{ .Release.Namespace }}
+{{- end }}

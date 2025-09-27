@@ -1,0 +1,55 @@
+# Image settings for the registry
+image:
+  repository: registry
+  tag: "2"
+  pullPolicy: IfNotPresent
+
+# Number of registry replicas
+replicaCount: 1
+
+# Service settings
+service:
+  type: NodePort
+  port: 5000
+  targetPort: 5000
+  nodePort: 32700
+
+# Ingress settings for custom domain
+ingress:
+  enabled: false
+  className: ""
+  host: registry.example.com
+  tls:
+    enabled: false
+    secretName: ""
+
+# Persistence for registry storage
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 10Gi
+
+# Authentication settings
+auth:
+  enabled: true
+  htpasswd: "admin:$2y$05$KvWGpmGOv3HirrAN.94.1eZ0fIWRiLdugHI4iBD1kSieJLwBfJCz6" # Multiline htpasswd content, e.g., user:$2y$05$...
+
+# TLS settings for the registry pod (HTTP TLS)
+tls:
+  enabled: false
+  cert: "" # Certificate content (PEM)
+  key: "" # Key content (PEM)
+
+# Redis settings for metadata cache
+redis:
+  enabled: true
+
+# Garbage collection settings
+garbageCollection:
+  enabled: true
+  schedule: "0 0 * * *" # Configurable cron schedule (daily at midnight by default)
+  dryRun: false
+
+# Additional config overrides (merged into config.yml)
+extraConfig: {}

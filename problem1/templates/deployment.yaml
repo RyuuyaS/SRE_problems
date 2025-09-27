@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "docker-registry.fullname" . }}
+  labels:
+    {{ include "docker-registry.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{ include "docker-registry.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{ include "docker-registry.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: registry
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: storage
+              mountPath: /var/lib/registry
+            - name: config
+              mountPath: /etc/docker/registry/config.yml
+              subPath: config.yml
+          {{- if .Values.auth.enabled }}
+            - name: auth
+              mountPath: /auth
+          {{- end }}
+          {{- if .Values.tls.enabled }}
+            - name: tls
+              mountPath: /certs
+          {{- end }}
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: {{ include "docker-registry.fullname" . }}-storage
+        - name: config
+          configMap:
+            name: {{ include "docker-registry.fullname" . }}-config
+      {{- if .Values.auth.enabled }}
+        - name: auth
+          secret:
+            secretName: {{ include "docker-registry.fullname" . }}-auth
+      {{- end }}
+      {{- if .Values.tls.enabled }}
+        - name: tls
+          secret:
+            secretName: {{ include "docker-registry.fullname" . }}-tls
+      {{- end }}

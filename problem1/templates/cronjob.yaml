@@ -1,0 +1,32 @@
+{{- if .Values.garbageCollection.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "docker-registry.fullname" . }}-gc
+spec:
+  schedule: {{ .Values.garbageCollection.schedule | quote }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: {{ include "docker-registry.fullname" . }}-gc
+          restartPolicy: OnFailure
+          containers:
+            - name: gc
+              image: bitnami/kubectl:latest
+              command:
+                - bash
+              args:
+                - -c
+                - |
+                  POD_NAME=$(kubectl get pods -l app.kubernetes.io/name={{ include "docker-registry.name" . }} -o jsonpath='{.items[0].metadata.name}')
+                  CM_NAME={{ include "docker-registry.fullname" . }}-config
+                  ORIGINAL_CONFIG=$(kubectl get cm $CM_NAME -o jsonpath='{.data.config\.yml}')
+                  READONLY_CONFIG="${ORIGINAL_CONFIG/enabled: false/enabled: true}"
+                  kubectl patch cm $CM_NAME --type merge -p "{\"data\":{\"config.yml\": \"$READONLY_CONFIG\"}}"
+                  kubectl exec $POD_NAME -- kill -HUP 1
+                  kubectl exec $POD_NAME -- /bin/registry garbage-collect /etc/docker/registry/config.yml --delete-untagged {{ if .Values.garbageCollection.dryRun }}--dry-run{{ end }}
+                  NORMAL_CONFIG="${READONLY_CONFIG/enabled: true/enabled: false}"
+                  kubectl patch cm $CM_NAME --type merge -p "{\"data\":{\"config.yml\": \"$NORMAL_CONFIG\"}}"
+                  kubectl exec $POD_NAME -- kill -HUP 1
+{{- end }}
