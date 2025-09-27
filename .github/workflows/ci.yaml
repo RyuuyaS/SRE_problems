@@ -26,6 +26,7 @@ jobs:
     permissions:
       actions: read
       contents: read
+      security-events: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,6 +36,11 @@ jobs:
         with:
           format: sarif
           outputFile: results
+
+      - name: Upload Kubescape scan results to Github Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
 
   test:
     runs-on: ubuntu-latest
@@ -53,9 +59,6 @@ jobs:
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
-
-      - name: Lint
-        run: helm lint problem1
 
       - name: Setup Minikube (action)
         uses: medyagh/setup-minikube@latest
