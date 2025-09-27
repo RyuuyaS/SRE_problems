@@ -1,4 +1,4 @@
-name: Lint Chart
+name: Chart CI
 
 on:
   workflow_dispatch:
@@ -10,6 +10,33 @@ on:
 
 jobs:
   lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Lint
+        run: helm lint problem1
+
+  security_scan:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: kubescape/github-action@main
+        continue-on-error: true
+        with:
+          format: sarif
+          outputFile: results
+
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Setup a local image
